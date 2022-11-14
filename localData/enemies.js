@@ -1,8 +1,8 @@
 /*
  * @Date: 2022-09-27 11:18:33
  * @LastEditors: Ke Ren
- * @LastEditTime: 2022-11-07 01:21:04
- * @FilePath: /kingdomRush/client/localData/enemies.js
+ * @LastEditTime: 2022-11-14 02:52:27
+ * @FilePath: /client/localData/enemies.js
  */
 export const enemies = {
   stage1:[
@@ -10,6 +10,7 @@ export const enemies = {
       'wave_id':1,
       'enemies':{
         'Goblin':5,
+        'Orc':5,
       }
     },
     {

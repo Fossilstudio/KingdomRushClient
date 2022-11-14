@@ -1,8 +1,8 @@
 /*
  * @Date: 2022-10-17 03:29:26
  * @LastEditors: Ke Ren
- * @LastEditTime: 2022-11-07 02:14:58
- * @FilePath: /kingdomRush/client/components/Enemies.js
+ * @LastEditTime: 2022-11-13 01:14:10
+ * @FilePath: /client/components/Enemies.js
  */
 import React, { useEffect, useState } from "react";
 import { View, StyleSheet } from "react-native";
@@ -12,7 +12,7 @@ import { enemies } from "../localData/enemies";
 function Enemies() {
 
   // TODO get enemies from database
-  const currentWave = enemies.stage1[1]
+  const currentWave = enemies.stage1[0]
 
   const enemiesAmount = currentWave.enemies
   const enemiesPerWaveList = []
@@ -23,7 +23,7 @@ function Enemies() {
     for (let index = 0; index < length; index++) {
       enemiesPerWaveList.push(
         // TODO get speed from database
-        <Enemy key={id} name={enemyGroup} id={id++} speed={1} />
+        <Enemy key={id} name={enemyGroup} id={id++} speed={2} />
       )
     }
   }
