@@ -1,26 +1,23 @@
 /*
  * @Date: 2022-10-18 00:12:58
  * @LastEditors: Ke Ren
- * @LastEditTime: 2022-11-23 00:48:39
+ * @LastEditTime: 2022-11-23 02:47:15
  * @FilePath: /kingdomRush/client/components/Enemy.js
  */
 import React, { useEffect, useRef, useState } from "react";
 import { View, StyleSheet } from "react-native";
-import { waypath } from "../localData/waypath";
 import SpriteSheet from "rn-sprite-sheet";
 
 import getDistance from "../functions/getDistance";
 
-
-function Enemy({ name, id, speed }) {
+function Enemy({ name, id, speed, pathway }) {
   const enemyRef = useRef(null);
   const maxHp = 100;
   const [hp, setHp] = useState(maxHp);
-  const [location, setLocation] = useState({ top: 100, left: 100 });
-  const [nextWayPointId, setNextWayPointID] = useState(0);
-  const [nextWayPoint, setNextWayPoint] = useState(
-    waypath.stage1[nextWayPointId]
-  );
+  const [location, setLocation] = useState({ });
+  const [nextWayPointId, setNextWayPointID] = useState(1);
+  const [nextWayPoint, setNextWayPoint] = useState({});
+  const pathwayLength = pathway.length
   const [distance, setDistance] = useState(100);
   const ref = useRef()
   const [active, setActive] = useState(false)
@@ -48,9 +45,10 @@ function Enemy({ name, id, speed }) {
     });
   }
 
-  /* useEffect(()=>{
-    initalEnemyAnimate()
-  },[]) */
+  function reachEnd() {
+    console.log('hp-1')
+    console.log('remove this enemy')
+  }
 
   function move() {
     let enemyTimeID
@@ -62,7 +60,14 @@ function Enemy({ name, id, speed }) {
   
         if (ref.current.distance < 1) {
           setNextWayPointID(prev=>prev+1)
-          setNextWayPoint(waypath.stage1[ref.current.nextWayPointId])
+          if (ref.current.nextWayPointId>=pathwayLength) {
+            reachEnd()
+          }else {
+            setNextWayPoint([
+              pathway[ref.current.nextWayPointId]['pathway_left'],
+              pathway[ref.current.nextWayPointId]['pathway_top']
+            ])
+          }
         }else {
           const lengthX = nextWayPoint[0] - currentPosition[0]
           const lengthY = nextWayPoint[1] - currentPosition[1]
@@ -85,14 +90,23 @@ function Enemy({ name, id, speed }) {
   }
 
   useEffect(()=>{
+    setLocation({
+      top: pathway[0]['pathway_top'],
+      left: pathway[0]['pathway_left'] 
+    })
+    setNextWayPoint(
+      [pathway[1]['pathway_left'], pathway[1]['pathway_top']]
+    )
+  },[pathway])
+
+  useEffect(()=>{
     move()
   },[location,nextWayPoint,active])
 
   useEffect(()=>{
-    console.log('Enemy')
     let spawnTimeoutID = setTimeout(() => {
       initalEnemyAnimate()
-    }, 3000 * id * Math.random()); // 3000 => interval for each enemy
+    }, 3000 * (id+1) * Math.random()); // 3000 => interval for each enemy
     
     return () => {
       clearTimeout(spawnTimeoutID);
@@ -148,71 +162,3 @@ const styles = StyleSheet.create({
 });
 
 export default Enemy;
-
-
-
-
-/* 
-function enemyMove(prevState) {
-  const currentPosition = [prevState.left, prevState.top];
-  const length = getDistance(currentPosition, nextWayPoint);
-
-  if (length < 1) {
-    setNextWayPointID((prev) => prev + 1);
-    return { top: prevState.top, left: prevState.left };
-  } else {
-    const lengthX = nextWayPoint[0] - currentPosition[0];
-    const lengthY = nextWayPoint[1] - currentPosition[1];
-
-    const step = Math.round(length / speed);
-    const top = prevState.top + lengthY / step;
-    const left = prevState.left + lengthX / step;
-    return { top: top, left: left };
-  }
-}
-
-useEffect(() => {
-  console.log(distance);
-  setNextWayPoint(waypath.stage1[nextWayPointId])
-}, [nextWayPointId, nextWayPoint, distance]);
-
-// Spawn enemy inside setTimeout
-
-// enemy walk in another useEffect
-
-function enemySpawn() {
-  initalEnemyAnimate();
-  timeoutID = setTimeout(() => {
-    enemyWalk()
-  }, 3000 * id * Math.random()); // 3000 => interval for each enemy
-}
-
-function enemyWalk() {
-  intervalID = setInterval(() => {
-    setLocation((prevState) => {
-      const currentPosition = [prevState.left, prevState.top];
-      const newDistance = getDistance(currentPosition, nextWayPoint);
-      setDistance(newDistance);
-      const updatedValues = enemyMove(prevState);
-      if (newDistance < 1) {
-        setNextWayPointID(updater)
-        console.log(nextWayPointId)
-      }
-      return { ...prevState, ...updatedValues };
-    });
-  }, 100);
-}
-
-function updater() {
-  return nextWayPointId+1
-}
-
-useEffect(() => {
-  enemySpawn();
-
-  return () => {
-    clearInterval(intervalID);
-    clearTimeout(timeoutID);
-  };
-}, []);
- */
