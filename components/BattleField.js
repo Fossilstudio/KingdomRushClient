@@ -1,17 +1,17 @@
 /*
  * @Date: 2022-09-27 10:40:20
  * @LastEditors: Ke Ren
- * @LastEditTime: 2022-10-24 03:16:08
+ * @LastEditTime: 2022-11-21 01:17:17
  * @FilePath: /kingdomRush/client/components/BattleField.js
  */
 import React, {useEffect, useState} from "react";
-import {StyleSheet, View, ImageBackground} from "react-native";
+import {StyleSheet, View, ImageBackground, Text} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import BattleUI from "./BattleUI";
 import BuildTowerUI from "./BuildTowerUI";
 import Enemies from "./Enemies";
 import {background} from "../localData/battleBackground"
-import { map, settle } from '../actions/map'
+import { map, settle, pathway, stage } from '../actions/map'
 
 function BattleField(props) {
   const id = props.route.params.id+1
@@ -22,6 +22,9 @@ function BattleField(props) {
   const [gold,setGold] = useState(200)
   const [hp, setHp] = useState(0)
   const [waves, setWaves] = useState(0)
+  const [mapInfo, setMapInfo] = useState({})
+  const [pathwayArray, setPathwayArray] = useState([])
+  const [stageInfo, setStageInfo] = useState([])
 
   const toggleDisabled = ()=>{
     if (settleDisable) {
@@ -29,8 +32,6 @@ function BattleField(props) {
     }else {setSettleDisable(true)}
   }
 
-  /* AsyncStorage.setItem('gold',gold.toString())
-    .then(()=>{console.log('store')}) */
   const storeData = () => {
     try {
       const jsonValue = JSON.stringify(gold)
@@ -50,15 +51,38 @@ function BattleField(props) {
   }
   ,[gold])
 
-  useEffect(()=>{
-    // init gold hp and waves
+  function getMap() {
     map(id)
     .then((mapData)=>{
-      setGold(mapData.data.initGold)
-      setHp(mapData.data.hp)
-      setWaves(mapData.data.waves)
+      setMapInfo(mapData.data)
+      setGold(mapData.data['map_initGold'])
+      setHp(mapData.data['map_max_hp'])
+      setWaves(mapData.data['map_max_waves'])
     })
-    .catch((err)=>{console.log(err)})
+    .catch((err)=>{console.error(err);})
+  }
+
+  function getPathway() {
+    pathway(id)
+    .then((pathwayData)=>{
+      setPathwayArray(pathwayData.data)
+    }).catch((err)=>{console.error(err);})
+  }
+
+  function getStage() {
+    stage(id)
+    .then((stageData)=>{
+      setStageInfo(stageData.data)
+    }).catch((err)=>{console.error(err);})
+  }
+
+  useEffect(()=>{
+    // get map info and init gold hp and waves
+    getMap()
+    // get pathway array
+    getPathway()
+    // get stage infomation
+    getStage()
   },[])
 
   useEffect(()=>{
@@ -79,16 +103,30 @@ function BattleField(props) {
 
   },[settleDisable])
 
+  
+  const $pathway = []
+  pathwayArray.forEach(path => {
+    $pathway.push(
+    <Text key={path['pathway_id']} style={{
+      position:'absolute',
+      top:path['pathway_top'],
+      left:path['pathway_left'],
+    }}>{path['pathway_id']}</Text>
+    )
+  });
+
+
   return (
     <View style={styles.container}>
       {/* The image name in require has to be known statically. */}
       <ImageBackground source={background[stageId]} resizeMode="stretch" style={styles.background}>
+        { $pathway }
         {/* Settle Places */}
         {settlePlaces}
         {/* ADD UI */}
         <BattleUI gold={gold} hp={hp} waves={waves} id={id}/>
         {/* Add Canvas */}
-        <Enemies />
+        <Enemies mapID={id} pathway={pathwayArray} stageInfo={stageInfo}/>
       </ImageBackground>
     </View>
   )

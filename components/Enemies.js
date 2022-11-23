@@ -1,36 +1,33 @@
 /*
  * @Date: 2022-10-17 03:29:26
  * @LastEditors: Ke Ren
- * @LastEditTime: 2022-11-13 01:14:10
- * @FilePath: /client/components/Enemies.js
+ * @LastEditTime: 2022-11-23 00:52:00
+ * @FilePath: /kingdomRush/client/components/Enemies.js
  */
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, Text } from "react-native";
 import Enemy from "./Enemy";
-import { enemies } from "../localData/enemies";
 
-function Enemies() {
-
+function Enemies({mapID,pathway,stageInfo}) {
   // TODO get enemies from database
-  const currentWave = enemies.stage1[0]
+  const [wave, setWave] = useState(1)
+  const [enemiesPerWaveList,setEnemiesPerWaveList] = useState([])
 
-  const enemiesAmount = currentWave.enemies
-  const enemiesPerWaveList = []
-  let id = 0
-  
-  for (const enemyGroup in enemiesAmount) {
-    const length = enemiesAmount[enemyGroup]
-    for (let index = 0; index < length; index++) {
-      enemiesPerWaveList.push(
-        // TODO get speed from database
-        <Enemy key={id} name={enemyGroup} id={id++} speed={2} />
-      )
-    }
-  }
+  useEffect(()=>{
+    stageInfo.map(item=>{
+      if (item.stage_wave_id === wave) {
+        for (let index = 0; index < item.stage_enemy_amount; index++) {
+          setEnemiesPerWaveList(
+            prevState=>[...prevState,<Enemy key={item.stage_enemy_name+index} name={item.stage_enemy_name} id={index} speed={1} />]
+          )
+        }
+      }
+    })
+  },[stageInfo])
 
   return (
     <View style={styles.container}>
-      {enemiesPerWaveList}
+      { enemiesPerWaveList }
     </View>
   )
 }

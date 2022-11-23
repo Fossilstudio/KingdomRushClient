@@ -1,8 +1,8 @@
 /*
  * @Date: 2022-10-18 00:12:58
  * @LastEditors: Ke Ren
- * @LastEditTime: 2022-11-14 02:50:44
- * @FilePath: /client/components/Enemy.js
+ * @LastEditTime: 2022-11-23 00:48:39
+ * @FilePath: /kingdomRush/client/components/Enemy.js
  */
 import React, { useEffect, useRef, useState } from "react";
 import { View, StyleSheet } from "react-native";
@@ -55,7 +55,6 @@ function Enemy({ name, id, speed }) {
   function move() {
     let enemyTimeID
     let spawnTimeoutID
-    console.log(ref.current.active)
     if (ref.current.active) {
       enemyTimeID = setTimeout(()=>{
         const currentPosition = [location.left, location.top]
@@ -80,7 +79,7 @@ function Enemy({ name, id, speed }) {
     } else {
       spawnTimeoutID = setTimeout(() => {
         setActive(true)
-      }, 3000*id*Math.random());
+      }, 3000*(id+1)*Math.random());
       return ()=>{ clearTimeout(spawnTimeoutID)}
     }
   }
@@ -90,6 +89,7 @@ function Enemy({ name, id, speed }) {
   },[location,nextWayPoint,active])
 
   useEffect(()=>{
+    console.log('Enemy')
     let spawnTimeoutID = setTimeout(() => {
       initalEnemyAnimate()
     }, 3000 * id * Math.random()); // 3000 => interval for each enemy
